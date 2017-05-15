@@ -131,9 +131,10 @@ void first_pass() {
   ====================*/
 struct vary_node ** second_pass() {
 
-	/*
-	struct vary_node ** knobArrayList = (struct vary_node **) calloc(num_frames, sizeof(struct vary_node *));
+	//initialize array of lists
+	struct vary_node ** knobListArray = (struct vary_node **) calloc(num_frames, sizeof(struct vary_node *));
 
+	//go through each knob
 	int i;
 	double fr;
 	for(i = 0; i < lastop; i++)
@@ -149,14 +150,11 @@ struct vary_node ** second_pass() {
 		for(fr = f1; fr <= f2; fr++)
 		{
 			double currentVal = v1 + (v2 - v1) * (fr - f1) / (f2 - f1);
-			struct vary_node currentNode;
-			currentNode
-		}
 
+		}
 	}
 
-*/
-  return NULL;
+	return NULL;
 }
 
 

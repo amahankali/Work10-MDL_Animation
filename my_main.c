@@ -153,11 +153,12 @@ struct vary_node ** second_pass() {
 
 			//set fields of currentNode
 			currentNode->value = v1 + (v2 - v1) * (fr - f1) / (f2 - f1);
-			currentNode->name = op[i].op.vary.p->name;
+			char* knobName = op[i].op.vary.p->name;
+			strcpy(currentNode->name, knobName);
 
 			//add currentNode to the front of current list for frame fr
-			currentNode->next = knobListArray[fr];
-			knobListArray[fr] = currentNode;
+			currentNode->next = knobListArray[(int) fr];
+			knobListArray[(int) fr] = currentNode;
 
 			//does not take into account when two vary commands with the same knob
 			//have overlapping intervals of frames

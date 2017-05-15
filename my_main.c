@@ -153,9 +153,11 @@ struct vary_node ** second_pass() {
 
 			//set fields of currentNode
 			currentNode->value = v1 + (v2 - v1) * (fr - f1) / (f2 - f1);
-			
-			
+			currentNode->name = op[i].op.vary.p->name;
+
 			//add currentNode to the front of current list for frame fr
+			currentNode->next = knobListArray[fr];
+			knobListArray[fr] = currentNode;
 		}
 	}
 

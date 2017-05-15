@@ -149,8 +149,13 @@ struct vary_node ** second_pass() {
 		//for each frame this knob is varied in, add this knob to that frame
 		for(fr = f1; fr <= f2; fr++)
 		{
-			double currentVal = v1 + (v2 - v1) * (fr - f1) / (f2 - f1);
+			struct vary_node * currentNode = (struct vary_node *) calloc(1, sizeof(struct vary_node));
 
+			//set fields of currentNode
+			currentNode->value = v1 + (v2 - v1) * (fr - f1) / (f2 - f1);
+			
+			
+			//add currentNode to the front of current list for frame fr
 		}
 	}
 

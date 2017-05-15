@@ -34,6 +34,7 @@
   
   jdyrlandweaver
   =========================*/
+#define DEFAULT "abcd"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -72,7 +73,37 @@ void first_pass() {
   //in order to use name and num_frames
   //they must be extern variables
   extern int num_frames;
-  extern char name[128]; 
+  extern char name[128];
+
+  int i;
+  int varyFound = 0;
+  int frameFound = 0;
+  int baseNameFound = 0;
+  for(i = 0; i < lastop; i++)
+  {
+  	if(op[i].opcode == VARY) varyFound = 1;
+  	if(op[i].opcode == FRAMES) frameFound = 1;
+  	if(op[i].opcode == BASENAME) baseNameFound = 1;
+
+  	if(op[i].opcode == FRAMES) num_frames = (int) op[i].op.frames.num_frames;
+  	if(op[i].opcode == BASENAME)
+  	{
+  		char * n = op[i].op.basename.p->name;
+  		strcpy(name, n);
+  	}
+  }
+
+  if(varyFound && !frameFound)
+  {
+  	printf("Specify the number of frames.");
+  	exit(0);
+  }
+
+  if(frameFound && !baseNameFound)
+  {
+  	strcpy(name, DEFAULT);
+  	printf("Name used: %s\n", DEFAULT);
+  }
 
   return;
 }
@@ -99,6 +130,32 @@ void first_pass() {
   jdyrlandweaver
   ====================*/
 struct vary_node ** second_pass() {
+
+	/*
+	struct vary_node ** knobArrayList = (struct vary_node **) calloc(num_frames, sizeof(struct vary_node *));
+
+	int i;
+	double fr;
+	for(i = 0; i < lastop; i++)
+	{
+		if(op[i].opcode != VARY) continue;
+
+		double f1 = op[i].op.vary.start_frame;
+		double f2 = op[i].op.vary.end_frame;
+		double v1 = op[i].op.vary.start_val;
+		double v2 = op[i].op.vary.end_val;
+
+		//for each frame this knob is varied in, add this knob to that frame
+		for(fr = f1; fr <= f2; fr++)
+		{
+			double currentVal = v1 + (v2 - v1) * (fr - f1) / (f2 - f1);
+			struct vary_node currentNode;
+			currentNode
+		}
+
+	}
+
+*/
   return NULL;
 }
 

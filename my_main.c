@@ -158,10 +158,13 @@ struct vary_node ** second_pass() {
 			//add currentNode to the front of current list for frame fr
 			currentNode->next = knobListArray[fr];
 			knobListArray[fr] = currentNode;
+
+			//does not take into account when two vary commands with the same knob
+			//have overlapping intervals of frames
 		}
 	}
 
-	return NULL;
+	return knobListArray;
 }
 
 

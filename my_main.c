@@ -226,9 +226,17 @@ void print_knobs() {
   ====================*/
 void my_main() {
 
+	struct vary_node ** knobListArray = second_pass();
+
 	int frCount;
 	for(frCount = 0; frCount < num_frames; frCount++)
 	{
+		struct vary_node * currentFrameKnobs = knobListArray[frCount];
+		while(currentFrameKnobs != NULL)
+		{
+			
+		}
+
 
 	  	int i;
 	  	struct matrix *tmp;
@@ -252,7 +260,8 @@ void my_main() {
 			{
 				case SPHERE:
 		  			printf("Sphere: %6.2f %6.2f %6.2f r=%6.2f",
-			 			op[i].op.sphere.d[0],op[i].op.sphere.d[1],
+			 			op[i].op.sphere.d[0],
+			 			op[i].op.sphere.d[1],
 			 			op[i].op.sphere.d[2],
 			 			op[i].op.sphere.r);
 		  			if (op[i].op.sphere.constants != NULL)
@@ -274,7 +283,8 @@ void my_main() {
 
 				case TORUS:
 		  			printf("Torus: %6.2f %6.2f %6.2f r0=%6.2f r1=%6.2f",
-			 			op[i].op.torus.d[0],op[i].op.torus.d[1],
+			 			op[i].op.torus.d[0],
+			 			op[i].op.torus.d[1],
 			 			op[i].op.torus.d[2],
 			 			op[i].op.torus.r0,op[i].op.torus.r1);
 		  			if (op[i].op.torus.constants != NULL)
@@ -297,9 +307,11 @@ void my_main() {
 
 				case BOX:
 		  			printf("Box: d0: %6.2f %6.2f %6.2f d1: %6.2f %6.2f %6.2f",
-			 			op[i].op.box.d0[0],op[i].op.box.d0[1],
+			 			op[i].op.box.d0[0],
+			 			op[i].op.box.d0[1],
 			 			op[i].op.box.d0[2],
-			 			op[i].op.box.d1[0],op[i].op.box.d1[1],
+			 			op[i].op.box.d1[0],
+			 			op[i].op.box.d1[1],
 			 			op[i].op.box.d1[2]);
 		  			if (op[i].op.box.constants != NULL)
 		    		{
@@ -310,9 +322,11 @@ void my_main() {
 		      			printf("\tcs: %s",op[i].op.box.cs->name);
 		    		}
 		  			add_box(tmp,
-			  			op[i].op.box.d0[0],op[i].op.box.d0[1],
+			  			op[i].op.box.d0[0],
+			  			op[i].op.box.d0[1],
 			  			op[i].op.box.d0[2],
-			  			op[i].op.box.d1[0],op[i].op.box.d1[1],
+			  			op[i].op.box.d1[0],
+			  			op[i].op.box.d1[1],
 			  			op[i].op.box.d1[2]);
 		  			matrix_mult( peek(systems), tmp );
 		  			draw_polygons(tmp, t, g);
@@ -321,9 +335,11 @@ void my_main() {
 				
 				case LINE:
 		  			printf("Line: from: %6.2f %6.2f %6.2f to: %6.2f %6.2f %6.2f",
-			 			op[i].op.line.p0[0],op[i].op.line.p0[1],
+			 			op[i].op.line.p0[0],
 			 			op[i].op.line.p0[1],
-			 			op[i].op.line.p1[0],op[i].op.line.p1[1],
+			 			op[i].op.line.p0[1],
+			 			op[i].op.line.p1[0],
+			 			op[i].op.line.p1[1],
 			 			op[i].op.line.p1[1]);
 		  			if (op[i].op.line.constants != NULL)
 		    		{
@@ -341,7 +357,8 @@ void my_main() {
 
 				case MOVE:
 					printf("Move: %6.2f %6.2f %6.2f",
-						op[i].op.move.d[0],op[i].op.move.d[1],
+						op[i].op.move.d[0],
+						op[i].op.move.d[1],
 						op[i].op.move.d[2]);
 				  	if (op[i].op.move.p != NULL)
 					{
@@ -358,7 +375,8 @@ void my_main() {
 
 				case SCALE:
 		  			printf("Scale: %6.2f %6.2f %6.2f",
-			 			op[i].op.scale.d[0],op[i].op.scale.d[1],
+			 			op[i].op.scale.d[0],
+			 			op[i].op.scale.d[1],
 			 			op[i].op.scale.d[2]);
 		  			if (op[i].op.scale.p != NULL)
 		    		{

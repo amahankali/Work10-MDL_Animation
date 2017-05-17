@@ -231,12 +231,15 @@ void my_main() {
 	int frCount;
 	for(frCount = 0; frCount < num_frames; frCount++)
 	{
+
+		//set knobs in symbol table to value in knobListArray
 		struct vary_node * currentFrameKnobs = knobListArray[frCount];
 		while(currentFrameKnobs != NULL)
 		{
-			
+			char* knobName = currentFrameKnobs->name;
+			add_symbol(knobName, )
 		}
-
+		/////////////////////////////////////////////////
 
 	  	int i;
 	  	struct matrix *tmp;
@@ -252,6 +255,7 @@ void my_main() {
 	  	g.red = 0;
 	  	g.green = 0;
 	  	g.blue = 0;
+	  	double frac = 1;
 
 	  	for (i=0;i<lastop;i++) {
 
@@ -363,10 +367,11 @@ void my_main() {
 				  	if (op[i].op.move.p != NULL)
 					{
 						printf("\tknob: %s",op[i].op.move.p->name);
+						frac = op[i].op.move.p->s.value;
 			    	}
-		  			tmp = make_translate( op[i].op.move.d[0],
-						op[i].op.move.d[1],
-						op[i].op.move.d[2]);
+		  			tmp = make_translate( op[i].op.move.d[0] * frac,
+						op[i].op.move.d[1] * frac,
+						op[i].op.move.d[2] * frac);
 					matrix_mult(peek(systems), tmp);
 					copy_matrix(tmp, peek(systems));
 					tmp->lastcol = 0;
@@ -381,10 +386,11 @@ void my_main() {
 		  			if (op[i].op.scale.p != NULL)
 		    		{
 		      			printf("\tknob: %s",op[i].op.scale.p->name);
+		      			frac = op[i].op.scale.p->s.value;
 		    		}
-		  			tmp = make_scale( op[i].op.scale.d[0],
-				    	op[i].op.scale.d[1],
-				    	op[i].op.scale.d[2]);
+		  			tmp = make_scale( op[i].op.scale.d[0] * frac,
+				    	op[i].op.scale.d[1] * frac,
+				    	op[i].op.scale.d[2] * frac);
 		  			matrix_mult(peek(systems), tmp);
 		  			copy_matrix(tmp, peek(systems));
 		  			tmp->lastcol = 0;
@@ -397,8 +403,9 @@ void my_main() {
 		  			if (op[i].op.rotate.p != NULL)
 		    		{
 		      			printf("\tknob: %s",op[i].op.rotate.p->name);
+		      			frac = op[i].op.scale.p->s.value;
 		    		}
-		  			theta =  op[i].op.rotate.degrees * (M_PI / 180);
+		  			theta =  op[i].op.rotate.degrees * (M_PI / 180) * frac;
 		  			if (op[i].op.rotate.axis == 0 )
 		    			tmp = make_rotX( theta );
 		  			else if (op[i].op.rotate.axis == 1 )

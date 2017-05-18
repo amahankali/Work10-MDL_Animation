@@ -34,6 +34,14 @@
   
   jdyrlandweaver
   =========================*/
+
+/*
+- Questions
+	- When making the transformations, where to find the values of the knobs? The SYMTAB * p pointer will only hold the names.
+	- What are the constants for the shapes (SPHERE, BOX, etc.)? Do we have to worry about those?
+*/
+
+
 #define DEFAULT "abcd"
 
 #include <stdio.h>
@@ -229,16 +237,31 @@ void my_main() {
 	struct vary_node ** knobListArray = second_pass();
 
 	int frCount;
+
+	if(frCount > 1) //make directory for animation
+	{
+		int v = mkdir(name, 0777);
+		if(v) printf("directory %s not made\n", name);
+
+		v = chdir(name, 0777);
+		if(v) printf("directory %s not entered\n", name);
+	}
+
 	for(frCount = 0; frCount < num_frames; frCount++)
 	{
 
-		//set knobs in symbol table to value in knobListArray
+		//do not set knobs in symbol table
+		//go directly to the values in op array
+		//REDO THIS PARTY
+		/*
 		struct vary_node * currentFrameKnobs = knobListArray[frCount];
 		while(currentFrameKnobs != NULL)
 		{
 			char* knobName = currentFrameKnobs->name;
-			add_symbol(knobName, )
+			add_symbol(knobName, SYM_VALUE, currentFrameKnobs->value);
+			currentFrameKnobs = currentFrameKnobs->next;
 		}
+		*/
 		/////////////////////////////////////////////////
 
 	  	int i;
@@ -438,6 +461,14 @@ void my_main() {
 		  			break;
 	    	}
 	      	printf("\n");
+
+	      	//save current frame in directory
+	      	char * frameFileName = (char *) calloc(1, 500);
+	      	sprintf(frameFileName, "%s%d", name, frCount);
+	      	save_extension(t, frameFileName);
+	      	free(frameFileName);
+	      	/////////////////////////////////
+
     	}
 	}
 }

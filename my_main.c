@@ -36,6 +36,7 @@
   =========================*/
 
 #define DEFAULT "abcd"
+#define FRAMEFOLDER "anim"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -280,17 +281,17 @@ void my_main() {
 	first_pass();
 	struct vary_node ** knobListArray = second_pass();
 
-	if(num_frames > 1) //make directory for animation
+	if(num_frames > 1) //just use anim folder
 	{
-		int v = mkdir(name, 0777);
-		if(v) printf("directory %s not made\n", name);
-		if(v) printf("%s\n", strerror(errno));
-		if(!v) printf("directory %s made\n", name);
+		//int v = mkdir(name, 0777);
+		//if(v) printf("directory %s not made\n", name);
+		//if(v) printf("%s\n", strerror(errno));
+		//if(!v) printf("directory %s made\n", name);
 
-		v = chdir(name);
-		if(v) printf("directory %s not entered\n", name);
+		int v = chdir(FRAMEFOLDER);
+		if(v) printf("directory %s not entered\n", FRAMEFOLDER);
 		if(v) printf("%s\n", strerror(errno));
-		if(!v) printf("directory %s entered\n", name);
+		if(!v) printf("directory %s entered\n", FRAMEFOLDER);
 	}
 
 	int frCount;
@@ -522,5 +523,10 @@ void my_main() {
 	}
 
 	freeArrayList(knobListArray);
-	make_animation("simple");
+	int res = chdir("..");
+	if(res) printf("Did not go to root\n");
+
+	char* animName = (char *) calloc(20, sizeof(char));
+	strcat(animName, name);
+	make_animation(animName);
 }

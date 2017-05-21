@@ -48,6 +48,8 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <unistd.h>
 #include "parser.h"
 #include "symtab.h"
 #include "y.tab.h"
@@ -82,11 +84,14 @@ void first_pass() {
   //they must be extern variables
   extern int num_frames;
   extern char name[128];
+  int c;
+  for(c = 0; c < 128; c++) name[c] = 0;
 
   int i;
   int varyFound = 0;
   int frameFound = 0;
   int baseNameFound = 0;
+
   for(i = 0; i < lastop; i++)
   {
   	if(op[i].opcode == VARY) varyFound = 1;
@@ -103,7 +108,7 @@ void first_pass() {
 
   if(varyFound && !frameFound)
   {
-  	printf("Specify the number of frames.");
+  	printf("Specify the number of frames in animation.\n");
   	exit(0);
   }
 
@@ -149,9 +154,10 @@ struct vary_node ** second_pass() {
 	{
 		if(op[i].opcode != VARY) continue;
 
+		char* knobName = op[i].op.vary.p->name;
 		double f1 = op[i].op.vary.start_frame;
 		double f2 = op[i].op.vary.end_frame;
-		double v1 = op[i].op.vary.start_val;
+		double v1 = op[i].op.vary.start_vall;
 		double v2 = op[i].op.vary.end_val;
 
 		//for each frame this knob is varied in, add this knob to that frame
@@ -161,10 +167,9 @@ struct vary_node ** second_pass() {
 
 			//set fields of currentNode
 			currentNode->value = v1 + (v2 - v1) * (fr - f1) / (f2 - f1);
-			char* knobName = op[i].op.vary.p->name;
 			strcpy(currentNode->name, knobName);
 
-			//add currentNode to the front of current list for frame fr
+			//add currentNode to front of current list for frame fr
 			currentNode->next = knobListArray[(int) fr];
 			knobListArray[(int) fr] = currentNode;
 
@@ -234,35 +239,41 @@ void print_knobs() {
   ====================*/
 void my_main() {
 
+	first_pass();
 	struct vary_node ** knobListArray = second_pass();
 
-	int frCount;
-
-	if(frCount > 1) //make directory for animation
+	if(num_frames > 1) //make directory for animation
 	{
 		int v = mkdir(name, 0777);
 		if(v) printf("directory %s not made\n", name);
 
-		v = chdir(name, 0777);
+		v = chdir(name);
 		if(v) printf("directory %s not entered\n", name);
 	}
 
+	int frCount;
 	for(frCount = 0; frCount < num_frames; frCount++)
 	{
-
-		//do not set knobs in symbol table
-		//go directly to the values in op array
-		//REDO THIS PARTY
-		/*
+		//set knobs in symbol table to values in knobListArray
+		//using set_value method
 		struct vary_node * currentFrameKnobs = knobListArray[frCount];
 		while(currentFrameKnobs != NULL)
 		{
 			char* knobName = currentFrameKnobs->name;
-			add_symbol(knobName, SYM_VALUE, currentFrameKnobs->value);
-			currentFrameKnobs = currentFrameKnobs->next;
+			double knobVal = currentFrameKnobs->value;
+			SYMTAB *p knobIndex = lookup_symbol(knobName);
+			set_value(knobIndex, knobVal);
 		}
-		*/
-		/////////////////////////////////////////////////
+
+
+
+	}
+
+
+/*
+
+	for(frCount = 0; frCount < num_frames; frCount++)
+	{
 
 	  	int i;
 	  	struct matrix *tmp;
@@ -468,7 +479,7 @@ void my_main() {
 	      	save_extension(t, frameFileName);
 	      	free(frameFileName);
 	      	/////////////////////////////////
-
     	}
 	}
+	*/
 }

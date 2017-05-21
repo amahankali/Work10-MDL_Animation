@@ -283,11 +283,6 @@ void my_main() {
 
 	if(num_frames > 1) //just use anim folder
 	{
-		//int v = mkdir(name, 0777);
-		//if(v) printf("directory %s not made\n", name);
-		//if(v) printf("%s\n", strerror(errno));
-		//if(!v) printf("directory %s made\n", name);
-
 		int v = chdir(FRAMEFOLDER);
 		if(v) printf("directory %s not entered\n", FRAMEFOLDER);
 		if(v) printf("%s\n", strerror(errno));

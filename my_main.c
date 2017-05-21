@@ -35,13 +35,6 @@
   jdyrlandweaver
   =========================*/
 
-/*
-- Questions
-	- When making the transformations, where to find the values of the knobs? The SYMTAB * p pointer will only hold the names.
-	- What are the constants for the shapes (SPHERE, BOX, etc.)? Do we have to worry about those?
-*/
-
-
 #define DEFAULT "abcd"
 
 #include <stdio.h>
@@ -50,6 +43,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <errno.h>
 #include "parser.h"
 #include "symtab.h"
 #include "y.tab.h"
@@ -118,8 +112,48 @@ void first_pass() {
   	printf("Name used: %s\n", DEFAULT);
   }
 
+  printf("=====================================Pass 1 Done==================================\n");
+  printf("Basename: %s\n", name);
+  printf("Number of frames: %d\n", num_frames);
+  printf("\n\n");
+
   return;
 }
+
+////////////LIST METHODS////////////
+void printNode(struct vary_node * vn)
+{
+	if(!vn) return;
+	printf("(%s, %f) ", vn->name, vn->value);
+	printNode(vn->next);
+}
+
+void printList(struct vary_node * vn)
+{
+	printNode(vn);
+	printf("\n");
+}
+
+void printArrayList(struct vary_node ** knobListArray)
+{
+	int i;
+	for(i = 0; i < num_frames; i++) printList(knobListArray[i]);
+}
+
+void freeNode(struct vary_node *vn)
+{
+	if(!vn) return;
+	freeNode(vn->next);
+	free(vn);
+}
+
+void freeArrayList(struct vary_node ** knobListArray)
+{
+	int i;
+	for(i = 0; i < num_frames; i++) freeNode(knobListArray[i]);
+	free(knobListArray);
+}
+
 
 /*======== struct vary_node ** second_pass() ==========
   Inputs:   
@@ -157,7 +191,7 @@ struct vary_node ** second_pass() {
 		char* knobName = op[i].op.vary.p->name;
 		double f1 = op[i].op.vary.start_frame;
 		double f2 = op[i].op.vary.end_frame;
-		double v1 = op[i].op.vary.start_vall;
+		double v1 = op[i].op.vary.start_val;
 		double v2 = op[i].op.vary.end_val;
 
 		//for each frame this knob is varied in, add this knob to that frame
@@ -177,6 +211,10 @@ struct vary_node ** second_pass() {
 			//have overlapping intervals of frames
 		}
 	}
+
+	printf("=====================================Pass 2 Done==================================\n");
+	printArrayList(knobListArray);
+	printf("\n\n");
 
 	return knobListArray;
 }
@@ -246,14 +284,20 @@ void my_main() {
 	{
 		int v = mkdir(name, 0777);
 		if(v) printf("directory %s not made\n", name);
+		if(v) printf("%s\n", strerror(errno));
+		if(!v) printf("directory %s made\n", name);
 
 		v = chdir(name);
 		if(v) printf("directory %s not entered\n", name);
+		if(v) printf("%s\n", strerror(errno));
+		if(!v) printf("directory %s entered\n", name);
 	}
 
 	int frCount;
 	for(frCount = 0; frCount < num_frames; frCount++)
 	{
+		printf("=======================Starting frame %d=======================\n", frCount);
+
 		//set knobs in symbol table to values in knobListArray
 		//using set_value method
 		struct vary_node * currentFrameKnobs = knobListArray[frCount];
@@ -261,19 +305,11 @@ void my_main() {
 		{
 			char* knobName = currentFrameKnobs->name;
 			double knobVal = currentFrameKnobs->value;
-			SYMTAB *p knobIndex = lookup_symbol(knobName);
+			SYMTAB * knobIndex = lookup_symbol(knobName);
 			set_value(knobIndex, knobVal);
+			printf("Set knob %s to %f\n", knobName, knobVal);
+			currentFrameKnobs = currentFrameKnobs->next;
 		}
-
-
-
-	}
-
-
-/*
-
-	for(frCount = 0; frCount < num_frames; frCount++)
-	{
 
 	  	int i;
 	  	struct matrix *tmp;
@@ -419,8 +455,9 @@ void my_main() {
 			 			op[i].op.scale.d[2]);
 		  			if (op[i].op.scale.p != NULL)
 		    		{
-		      			printf("\tknob: %s",op[i].op.scale.p->name);
+		      			printf("\tknob: %s\n",op[i].op.scale.p->name);
 		      			frac = op[i].op.scale.p->s.value;
+		      			printf("Knob value: %f\n", frac);
 		    		}
 		  			tmp = make_scale( op[i].op.scale.d[0] * frac,
 				    	op[i].op.scale.d[1] * frac,
@@ -436,8 +473,9 @@ void my_main() {
 			 		op[i].op.rotate.degrees);
 		  			if (op[i].op.rotate.p != NULL)
 		    		{
-		      			printf("\tknob: %s",op[i].op.rotate.p->name);
-		      			frac = op[i].op.scale.p->s.value;
+		      			printf("\tknob: %s\n",op[i].op.rotate.p->name);
+		      			frac = op[i].op.rotate.p->s.value;
+		      			printf("Knob value: %f\n", frac);
 		    		}
 		  			theta =  op[i].op.rotate.degrees * (M_PI / 180) * frac;
 		  			if (op[i].op.rotate.axis == 0 )
@@ -473,13 +511,16 @@ void my_main() {
 	    	}
 	      	printf("\n");
 
-	      	//save current frame in directory
-	      	char * frameFileName = (char *) calloc(1, 500);
-	      	sprintf(frameFileName, "%s%d", name, frCount);
-	      	save_extension(t, frameFileName);
-	      	free(frameFileName);
-	      	/////////////////////////////////
     	}
+
+    	//save current frame in directory
+	    char * frameFileName = (char *) calloc(1, 500);
+	    sprintf(frameFileName, "%s%06d%s", name, frCount, ".png");
+	    save_extension(t, frameFileName);
+	    free(frameFileName);
+	    /////////////////////////////////
 	}
-	*/
+
+	freeArrayList(knobListArray);
+	make_animation("simple");
 }

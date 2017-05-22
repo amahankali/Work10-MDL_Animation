@@ -312,7 +312,7 @@ void my_main() {
 	  	struct stack *systems;
 	  	screen t;
 	  	color g;
-	  	double step = 0.1;
+	  	double step = 0.05;
 	  	double theta;
 	  
 	  	systems = new_stack();
